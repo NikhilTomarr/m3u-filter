@@ -1,71 +1,101 @@
 <?php
-// Source M3U URL
-$source = "https://raw.githubusercontent.com/alex8875/m3u/refs/heads/main/artl.m3u";
+// Input: M3U content jisme #EXTHTTP:{"cookie":"..."} alag line me hota hai
+// Output: Wahi channels, but URL line me "||cookie=..." appended.
+// Order per channel: 
+// #KODIPROP:inputstream.adaptive.license_type=clearkey
+// #KODIPROP:inputstream.adaptive.license_key=...
+// #EXTVLCOPT:http-user-agent=...
+// #EXTINF:...
+// URL||cookie=...
 
-// Fetch the remote M3U content
-$m3u = file_get_contents($source);
-if (!$m3u) {
-    die("Failed to load M3U file.");
+header('Content-Type: audio/x-mpegurl');
+
+$m3u = file_get_contents('php://input'); // Ya apna source (URL/file) yahan la sakte ho
+$lines = preg_split("/[\\r\\n]+/", $m3u);
+$out = [];
+
+$pendingProps = [];
+$pendingExtinf = null;
+$pendingUA = null;
+$pendingCookie = null;
+
+function flush_channel(&$out, &$pendingProps, &$pendingUA, &$pendingExtinf, &$pendingCookie, $mediaUrl){
+    if (!$mediaUrl) return;
+
+    if (!empty($pendingProps['license_type'])) {
+        $out[] = '#KODIPROP:inputstream.adaptive.license_type=' . $pendingProps['license_type'];
+    }
+    if (!empty($pendingProps['license_key'])) {
+        $out[] = '#KODIPROP:inputstream.adaptive.license_key=' . $pendingProps['license_key'];
+    }
+    if ($pendingUA) {
+        $out[] = '#EXTVLCOPT:http-user-agent=' . $pendingUA;
+    }
+    if ($pendingExtinf) {
+        $out[] = $pendingExtinf;
+    }
+
+    if ($pendingCookie) {
+        $cookie = $pendingCookie;
+        if (preg_match('/\\{\"cookie\"\\s*:\\s*\"([^\"]+)\"\\}/', $cookie, $m)) {
+            $cookie = $m[1];
+        }
+        $out[] = $mediaUrl . '||cookie=' . $cookie;
+    } else {
+        $out[] = $mediaUrl;
+    }
+
+    // reset for next channel
+    $pendingProps = [];
+    $pendingUA = null;
+    $pendingExtinf = null;
+    $pendingCookie = null;
 }
 
-// Split lines
-$lines = explode("\n", $m3u);
-$output = "#EXTM3U\n";
-
-// Temporary store variables
-$keyid = "";
-$key = "";
-$cookie = "";
-$ua = "";
-$info = "";
-$stream = "";
+$out[] = '#EXTM3U';
+$currentMediaUrl = null;
 
 foreach ($lines as $line) {
     $line = trim($line);
+    if ($line === '') continue;
 
-    // Match clearkey line
-    if (strpos($line, "#KODIPROP:inputstream.adaptive.license_key=") !== false) {
-        $data = explode("=", $line, 2)[1];
-        list($keyid, $key) = explode(":", $data);
+    if (stripos($line, '#EXTM3U') === 0) {
+        continue; // already added
+    }
+
+    if (stripos($line, '#KODIPROP:inputstream.adaptive.license_type=') === 0) {
+        // dedupe: last seen wins
+        $pendingProps['license_type'] = substr($line, strlen('#KODIPROP:inputstream.adaptive.license_type='));
+        continue;
+    }
+    if (stripos($line, '#KODIPROP:inputstream.adaptive.license_key=') === 0) {
+        $pendingProps['license_key'] = substr($line, strlen('#KODIPROP:inputstream.adaptive.license_key='));
+        continue;
+    }
+    if (stripos($line, '#EXTVLCOPT:http-user-agent=') === 0) {
+        $pendingUA = substr($line, strlen('#EXTVLCOPT:http-user-agent='));
+        continue;
+    }
+    if (stripos($line, '#EXTINF:') === 0) {
+        $pendingExtinf = $line;
+        continue;
+    }
+    if (stripos($line, '#EXTHTTP:') === 0) {
+        // store cookie JSON/raw
+        $pendingCookie = substr($line, strlen('#EXTHTTP:'));
         continue;
     }
 
-    // Match cookie line
-    if (strpos($line, "#EXTHTTP:") !== false) {
-        preg_match('/"cookie":"([^"]+)"/', $line, $match);
-        $cookie = isset($match[1]) ? $match[1] : "";
+    if (preg_match('/^https?:\\/\\//i', $line)) {
+        // URL milte hi channel flush
+        flush_channel($out, $pendingProps, $pendingUA, $pendingExtinf, $pendingCookie, $line);
         continue;
     }
 
-    // Match user-agent line
-    if (strpos($line, "#EXTVLCOPT:http-user-agent=") !== false) {
-        $ua = str_replace("#EXTVLCOPT:http-user-agent=", "", $line);
-        continue;
-    }
-
-    // Match EXTINF line
-    if (strpos($line, "#EXTINF:") === 0) {
-        $info = $line;
-        continue;
-    }
-
-    // Match stream URL (ending with .mpd)
-    if (preg_match('/^https?:\/\/.*\.mpd$/', $line)) {
-        $stream = $line;
-
-        // Append formatted output
-        $output .= "#KODIPROP:inputstream.adaptive.license_type=clearkey\n";
-        $output .= "#KODIPROP:inputstream.adaptive.license_key=https://vercel-php-clearkey-hex-base64-json.vercel.app/api/results.php?keyid=$keyid&key=$key\n";
-        $output .= "#EXTVLCOPT:http-user-agent={$ua}\n";
-        $output .= "{$info}\n";
-        $output .= "{$stream}||cookie={$cookie}\n\n";
-
-        // Reset for next channel
-        $keyid = $key = $cookie = $ua = $info = $stream = "";
+    // Unknown directive safe-keep (rare)
+    if ($line[0] === '#') {
+        $out[] = $line;
     }
 }
 
-// Output processed M3U playlist
-header("Content-Type: audio/x-mpegurl");
-echo $output;
-?>
+echo implode(\"\\n\", $out), \"\\n\";
