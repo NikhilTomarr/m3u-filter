@@ -1,107 +1,101 @@
 <?php
-// Remote playlist URL
-$remoteUrl = 'https://m3u-fetcher.vercel.app/api/airtel';
+// Input: M3U content jisme #EXTHTTP:{"cookie":"..."} alag line me hota hai
+// Output: Wahi channels, but URL line me "||cookie=..." appended.
+// Order per channel: 
+// #KODIPROP:inputstream.adaptive.license_type=clearkey
+// #KODIPROP:inputstream.adaptive.license_key=...
+// #EXTVLCOPT:http-user-agent=...
+// #EXTINF:...
+// URL||cookie=...
 
-// BLOCK rules: jis block ke text ya URL me ye patterns mil jaayen, us block ko hide kar do.
-$blockPatterns = [
-    '/join@Billa_tv/i',                         // sample entry hide
-    '#https?://cdn\.videas\.fr/.*#i',          // demo HLS URL hide
-    // Aap aur patterns add kar sakte ho, e.g. group-title, tvg-logo domain, channel names:
-    // '/group-title="Join"/i',
-    // '/\bZee\s*TV\b/i',
-];
+header('Content-Type: audio/x-mpegurl');
 
-// OPTIONAL allow-list: agar yahan patterns add karoge, to sirf yehi pass honge; empty rakho to sab allowed except blocked.
-$allowOnlyPatterns = [
-    // keep empty for now
-];
+$m3u = file_get_contents('php://input'); // Ya apna source (URL/file) yahan la sakte ho
+$lines = preg_split("/[\\r\\n]+/", $m3u);
+$out = [];
 
-// Fetch remote M3U
-function fetch_m3u($url) {
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_CONNECTTIMEOUT => 10,
-        CURLOPT_TIMEOUT => 25,
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_SSL_VERIFYHOST => false,
-        CURLOPT_USERAGENT => 'Mozilla/5.0 (Vercel-PHP M3U Filter)',
-        CURLOPT_HTTPHEADER => ['Accept: text/plain; charset=UTF-8'],
-    ]);
-    $body = curl_exec($ch);
-    $err  = curl_error($ch);
-    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
+$pendingProps = [];
+$pendingExtinf = null;
+$pendingUA = null;
+$pendingCookie = null;
 
-    if ($body === false || $code < 200 || $code >= 300) {
-        http_response_code(502);
-        header('Content-Type: text/plain; charset=UTF-8');
-        echo "#EXTM3U\n# Error fetching origin: CODE=$code ERR=$err\n";
-        exit;
+function flush_channel(&$out, &$pendingProps, &$pendingUA, &$pendingExtinf, &$pendingCookie, $mediaUrl){
+    if (!$mediaUrl) return;
+
+    if (!empty($pendingProps['license_type'])) {
+        $out[] = '#KODIPROP:inputstream.adaptive.license_type=' . $pendingProps['license_type'];
     }
-    return $body;
+    if (!empty($pendingProps['license_key'])) {
+        $out[] = '#KODIPROP:inputstream.adaptive.license_key=' . $pendingProps['license_key'];
+    }
+    if ($pendingUA) {
+        $out[] = '#EXTVLCOPT:http-user-agent=' . $pendingUA;
+    }
+    if ($pendingExtinf) {
+        $out[] = $pendingExtinf;
+    }
+
+    if ($pendingCookie) {
+        $cookie = $pendingCookie;
+        if (preg_match('/\\{\"cookie\"\\s*:\\s*\"([^\"]+)\"\\}/', $cookie, $m)) {
+            $cookie = $m[1];
+        }
+        $out[] = $mediaUrl . '||cookie=' . $cookie;
+    } else {
+        $out[] = $mediaUrl;
+    }
+
+    // reset for next channel
+    $pendingProps = [];
+    $pendingUA = null;
+    $pendingExtinf = null;
+    $pendingCookie = null;
 }
 
-// Decide if a block should be dropped
-function should_drop_block(array $blockLines, array $blockPatterns, array $allowOnlyPatterns): bool {
-    $text = implode("\n", $blockLines);
+$out[] = '#EXTM3U';
+$currentMediaUrl = null;
 
-    if (!empty($allowOnlyPatterns)) {
-        $allowed = false;
-        foreach ($allowOnlyPatterns as $pat) {
-            if (preg_match($pat, $text)) { $allowed = true; break; }
-        }
-        if (!$allowed) return true;
+foreach ($lines as $line) {
+    $line = trim($line);
+    if ($line === '') continue;
+
+    if (stripos($line, '#EXTM3U') === 0) {
+        continue; // already added
     }
 
-    foreach ($blockPatterns as $pat) {
-        if (preg_match($pat, $text)) return true;
+    if (stripos($line, '#KODIPROP:inputstream.adaptive.license_type=') === 0) {
+        // dedupe: last seen wins
+        $pendingProps['license_type'] = substr($line, strlen('#KODIPROP:inputstream.adaptive.license_type='));
+        continue;
     }
-    return false;
+    if (stripos($line, '#KODIPROP:inputstream.adaptive.license_key=') === 0) {
+        $pendingProps['license_key'] = substr($line, strlen('#KODIPROP:inputstream.adaptive.license_key='));
+        continue;
+    }
+    if (stripos($line, '#EXTVLCOPT:http-user-agent=') === 0) {
+        $pendingUA = substr($line, strlen('#EXTVLCOPT:http-user-agent='));
+        continue;
+    }
+    if (stripos($line, '#EXTINF:') === 0) {
+        $pendingExtinf = $line;
+        continue;
+    }
+    if (stripos($line, '#EXTHTTP:') === 0) {
+        // store cookie JSON/raw
+        $pendingCookie = substr($line, strlen('#EXTHTTP:'));
+        continue;
+    }
+
+    if (preg_match('/^https?:\\/\\//i', $line)) {
+        // URL milte hi channel flush
+        flush_channel($out, $pendingProps, $pendingUA, $pendingExtinf, $pendingCookie, $line);
+        continue;
+    }
+
+    // Unknown directive safe-keep (rare)
+    if ($line[0] === '#') {
+        $out[] = $line;
+    }
 }
 
-// Parse playlist into channel blocks and filter
-function filter_playlist(string $raw, array $blockPatterns, array $allowOnlyPatterns): string {
-    $lines = preg_split("/\r\n|\r|\n/", $raw);
-    $out = [];
-    $out[] = '#EXTM3U';
-
-    $current = [];
-    $seenHeader = false;
-
-    foreach ($lines as $line) {
-        $trim = trim($line);
-        if ($trim === '') continue;
-
-        // Normalize: skip origin header (we already added our own)
-        if (!$seenHeader && stripos($trim, '#EXTM3U') === 0) {
-            $seenHeader = true;
-            continue;
-        }
-
-        // Collect lines in current block
-        $current[] = $trim;
-
-        // Non-comment line (URL) ends a block
-        if ($trim[0] !== '#') {
-            if (!should_drop_block($current, $blockPatterns, $allowOnlyPatterns)) {
-                foreach ($current as $cl) { $out[] = $cl; }
-            }
-            $current = [];
-        }
-    }
-
-    // Drop incomplete trailing block (metadata without URL)
-    return implode("\n", $out) . "\n";
-}
-
-// Main
-$raw = fetch_m3u($remoteUrl);
-
-// Output as M3U8
-header('Content-Type: application/vnd.apple.mpegurl; charset=UTF-8');
-header('Cache-Control: no-store, must-revalidate');
-header('Pragma: no-cache');
-
-echo filter_playlist($raw, $blockPatterns, $allowOnlyPatterns);
+echo implode(\"\\n\", $out), \"\\n\";
