@@ -1,13 +1,11 @@
 <?php
-// Config
-$githubRawUrl = 'https://raw.githubusercontent.com/USER/REPO/BRANCH/path/to/source.json'; // ya .m3u ya aapki API [web:11]
-$defaultUA = 'tv.accedo.airtel.wynk/1.97.1 (Linux;Android 11) ExoPlayerLib/2.19.1'; // EXTVLCOPT UA [web:8]
-header('Content-Type: audio/x-mpegurl'); // M3U MIME [web:16]
+// ---- CONFIG ----
+$inputUrl = 'https://raw.githubusercontent.com/USER/REPO/BRANCH/path/to/source.m3u'; // aapka current input URL
+$clearKeyBaseUrl = 'https://vercel-php-clearkey-hex-base64-json.vercel.app/api/results.php';
 
-// Helper: no-cache GET
-function http_get_nocache($url, $timeout=12) {
+// ---- Helper: fetch source (no-cache) ----
+function http_get_nocache($url, $timeout = 12) {
   $ch = curl_init();
-  // Cache-bypass via headers; query param based cache-bust ab reliable nahi hai [web:7][web:13]
   curl_setopt_array($ch, [
     CURLOPT_URL => $url,
     CURLOPT_RETURNTRANSFER => true,
@@ -18,80 +16,129 @@ function http_get_nocache($url, $timeout=12) {
       'Cache-Control: no-cache, no-store, max-age=0, must-revalidate',
       'Pragma: no-cache'
     ],
-    CURLOPT_USERAGENT => 'curl/8.x',
+    CURLOPT_USERAGENT => 'curl/8.x'
   ]);
   $body = curl_exec($ch);
   $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+  curl_close($ch);
   if ($body === false || $code >= 400) {
     http_response_code(502);
-    exit("#EXTM3U\n# Error fetching source ($code)\n");
+    header('Content-Type: text/plain; charset=utf-8');
+    echo "#EXTM3U\n# Error fetching source ($code)\n";
+    exit;
   }
-  curl_close($ch);
   return $body;
 }
 
-// Source format assumptions:
-// Option A) JSON array of items with keys:
-//   name, logo, group, mpd, cookie, keyid, key, user_agent(optional) [web:1][web:10]
-// Option B) Already M3U lines: pass-through (no auto-15-min, just immediate fetch) [web:16]
+// ---- DIRECT OUTPUT MODE ----
+// 1) Fetch source fresh
+$src = http_get_nocache($inputUrl);
 
-// Detect by first non-space char
-$raw = http_get_nocache($githubRawUrl); // each request fresh fetch [web:11][web:7]
-$trim = ltrim($raw);
+// 2) Convert using your existing function
+// NOTE: convertM3UString must be present below (as in your file)
+$converted = convertM3UString($src, $clearKeyBaseUrl);
 
-// If JSON, map to desired M3U template
-function print_header() {
-  echo "#EXTM3U\n";
-}
+// 3) Output to client with M3U headers (no file writes)
+header('Content-Type: application/x-mpegurl');
+header('Content-Disposition: inline; filename="artl.m3u"');
+header('Cache-Control: no-cache, no-store, must-revalidate');
+echo $converted;
+exit;
 
-if (strlen($trim) && $trim[0] === '[') {
-  $data = json_decode($raw, true);
-  if (!is_array($data)) {
-    print_header();
-    echo "# Parse error: invalid JSON\n";
-    exit;
-  }
-  print_header();
-  foreach ($data as $ch) {
-    $name   = $ch['name']   ?? 'Channel';
-    $logo   = $ch['logo']   ?? '';
-    $group  = $ch['group']  ?? 'Entertainment';
-    $mpd    = $ch['mpd']    ?? '';
-    $cookie = $ch['cookie'] ?? '';
-    $keyid  = $ch['keyid']  ?? '';
-    $key    = $ch['key']    ?? '';
-    $ua     = $ch['user_agent'] ?? $defaultUA;
-
-    // Mandatory fields check
-    if (!$mpd || !$keyid || !$key) continue;
-
-    echo "#KODIPROP:inputstream.adaptive.license_type=clearkey\n"; // clearkey header [web:10]
-    // Aapka vercel PHP endpoint format allowed (query ke saath) [web:10]
-    $licenseUrl = "https://vercel-php-clearkey-hex-base64-json.vercel.app/api/results.php?keyid={$keyid}&key={$key}";
-    echo "#KODIPROP:inputstream.adaptive.license_key={$licenseUrl}\n"; // clearkey URL [web:10]
-    echo "#EXTVLCOPT:http-user-agent={$ua}\n"; // UA per entry [web:8]
-    $logoAttr = $logo ? " tvg-logo=\"{$logo}\"" : "";
-    echo "#EXTINF:-1{$logoAttr} group-title=\"{$group}\", {$name}\n"; // EXTM3U entry [web:10]
-
-    // URL + ||cookie=
-    if ($cookie) {
-      echo "{$mpd}||cookie={$cookie}\n"; // cookie inline immediately after URL [web:10]
-    } else {
-      echo "{$mpd}\n";
+// M3U conversion function
+function convertM3UString($inputContent, $clearKeyBaseUrl) {
+    $lines = explode("\n", $inputContent);
+    $output = [];
+    $currentChannel = [];
+    
+    foreach ($lines as $line) {
+        $line = trim($line);
+        
+        if (empty($line)) {
+            continue;
+        }
+        
+        if (strpos($line, '#EXTM3U') === 0) {
+            $output[] = $line;
+        } elseif (strpos($line, '# Total Channels:') === 0 || strpos($line, '# Expires:') === 0) {
+            $output[] = $line;
+        } elseif (strpos($line, '#KODIPROP:inputstream.adaptive.license_key=') === 0) {
+            $licenseKey = str_replace('#KODIPROP:inputstream.adaptive.license_key=', '', $line);
+            $parts = explode(':', $licenseKey);
+            
+            if (count($parts) >= 2) {
+                $keyid = $parts[0];
+                $key = $parts[1];
+                
+                $output[] = '#KODIPROP:inputstream.adaptive.license_type=clearkey';
+                $newLicenseKey = $clearKeyBaseUrl . '?keyid=' . $keyid . '&key=' . $key;
+                $output[] = '#KODIPROP:inputstream.adaptive.license_key=' . $newLicenseKey;
+            }
+        } elseif (strpos($line, '#KODIPROP:inputstream.adaptive.license_type=') === 0) {
+            continue;
+        } elseif (strpos($line, '#EXTVLCOPT:') === 0) {
+            $currentChannel['vlcopt'] = $line;
+        } elseif (strpos($line, '#EXTINF:') === 0) {
+            $currentChannel['extinf'] = $line;
+        } elseif (strpos($line, '#EXTHTTP:') === 0) {
+            $currentChannel['exthttp'] = $line;
+        } elseif (strpos($line, 'http') === 0) {
+            $streamUrl = $line;
+            
+            if (isset($currentChannel['exthttp'])) {
+                $cookieMatch = [];
+                if (preg_match('/"cookie":"([^"]*)"/', $currentChannel['exthttp'], $cookieMatch)) {
+                    $cookieValue = $cookieMatch[1];
+                    $streamUrl = preg_replace('/\?\%7C.*/', '', $streamUrl);
+                    $streamUrl .= '||cookie=' . $cookieValue;
+                }
+            }
+            
+            if (isset($currentChannel['vlcopt'])) {
+                $output[] = $currentChannel['vlcopt'];
+            }
+            
+            if (isset($currentChannel['extinf'])) {
+                $output[] = $currentChannel['extinf'];
+            }
+            
+            $output[] = $streamUrl;
+            $currentChannel = [];
+        } else {
+            $output[] = $line;
+        }
     }
-  }
-  exit;
+    
+    return implode("\n", $output);
 }
 
-// Else assume already an M3U source; we’ll normalize minimal:
-// 1) Ensure starts with #EXTM3U
-// 2) No extra auto-refresh logic; direct passthrough
-$lines = preg_split("/\r\n|\n|\r/", $raw);
-if (!$lines) {
-  echo "#EXTM3U\n# Empty source\n";
-  exit;
+// Check if update is needed (only check every 30 minutes to avoid overloading)
+$cacheData = [];
+if (file_exists($cacheFile)) {
+    $cacheData = json_decode(file_get_contents($cacheFile), true) ?: [];
 }
-if (stripos($lines[0], '#EXTM3U') !== 0) {
-  array_unshift($lines, '#EXTM3U');
+
+$lastCheck = $cacheData['last_check'] ?? 0;
+$now = time();
+
+// Only check for updates every 30 minutes
+if (($now - $lastCheck) > 1800) {
+    $result = smartUpdateM3U($inputUrl, $outputFile, $cacheFile, $clearKeyBaseUrl);
+    
+    // Update last check time
+    $cacheData['last_check'] = $now;
+    file_put_contents($cacheFile, json_encode($cacheData, JSON_PRETTY_PRINT));
 }
-echo implode("\n", $lines);
+
+// Serve the M3U file
+if (file_exists($outputFile)) {
+    header('Content-Type: application/x-mpegurl');
+    header('Content-Disposition: inline; filename="artl.m3u"');
+    header('Cache-Control: no-cache, must-revalidate');
+    readfile($outputFile);
+} else {
+    http_response_code(404);
+    echo "M3U file not found";
+}
+
+?>
