@@ -1,7 +1,7 @@
 <?php
 // Set headers to output M3U file
 header('Content-Type: audio/x-mpegurl');
-header('Content-Disposition: inline; filename="pio.m3u"');
+header('Content-Disposition: inline; filename="playlist.m3u"');
 
 // Fetch JSON data from URL
 $jsonUrl = "https://playify.pages.dev/Jiotv.json";
