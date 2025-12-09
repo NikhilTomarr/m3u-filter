@@ -4,7 +4,7 @@ header('Content-Type: audio/x-mpegurl');
 header('Content-Disposition: inline; filename="playlist.m3u"');
 
 // Fetch JSON data from URL
-$jsonUrl = "https://playify.pages.dev/Jiotv.json";
+$jsonUrl = "https://jtv.pfy.workers.dev";
 $jsonData = file_get_contents($jsonUrl);
 
 // Check if data was fetched successfully
