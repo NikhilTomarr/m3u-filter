@@ -20,34 +20,38 @@ $modified_lines = [];
 foreach ($lines as $line) {
     $line = trim($line);
 
+    // REMOVE: #EXTHTTP lines completely
+    if (strpos($line, '#EXTHTTP:') === 0) {
+        continue; // Skip this line (don't add to modified_lines)
+    }
+
     // Modify group-title from "Jiostar" to "Jiostar x Streamstar"
     if (strpos($line, '#EXTINF:') === 0) {
         $line = str_replace('group-title="Jiostar"', 'group-title="Jiostar x Streamstar"', $line);
     }
 
     // Modify license key format
-    // Convert: #KODIPROP:inputstream.adaptive.license_key=keyid:key
-    // To: #KODIPROP:inputstream.adaptive.license_key=https://vercel-php-clearkey-hex-base64-json.vercel.app/api/results.php?keyid=keyid&key=key
     if (strpos($line, '#KODIPROP:inputstream.adaptive.license_key=') === 0) {
-        // Extract the key part after "license_key="
         $key_part = substr($line, strlen('#KODIPROP:inputstream.adaptive.license_key='));
-
-        // Split keyid and key by ":"
         $keys = explode(':', $key_part);
         if (count($keys) == 2) {
             $keyid = trim($keys[0]);
             $key = trim($keys[1]);
-
-            // Build new URL format
             $line = '#KODIPROP:inputstream.adaptive.license_key=https://vercel-php-clearkey-hex-base64-json.vercel.app/api/results.php?keyid=' . $keyid . '&key=' . $key;
         }
     }
 
-    // Modify URL: Add ||cookie= after index.mpd?
+    // Modify URL: Add ||cookie= after index.mpd? AND remove &xxx=... part
     if (strpos($line, 'https://jiotvpllive.cdn.jio.com') === 0 && 
         strpos($line, 'index.mpd?') !== false) {
+
         // Replace index.mpd? with index.mpd?||cookie=
         $line = str_replace('index.mpd?', 'index.mpd?||cookie=', $line);
+
+        // Remove &xxx=%7Ccookie=... and everything after it
+        if (strpos($line, '&xxx=') !== false) {
+            $line = preg_replace('/&xxx=.*$/', '', $line);
+        }
     }
 
     $modified_lines[] = $line;
