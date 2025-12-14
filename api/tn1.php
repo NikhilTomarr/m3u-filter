@@ -18,8 +18,8 @@ https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/dash/enc/lsdasbvglv/out/v1/bb
 
 #EXTINF:-1 group-title="IND vs SA" tvg-logo="g", WILLOW
 #KODIPROP:inputstream.adaptive.license_type=clearkey
-#KODIPROP:inputstream.adaptive.license_key=https://vercel-php-clearkey-hex-base64-json.vercel.app/api/results.php?keyid=f7bd765bfed600f1cb2658645e936903&key=44b76accbc94ebc6e67e7eba59b88f92
-https://otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/yybzgcajse/out/v1/60337bea559c4e399704e72eaedc8ff7/cenc.mpd?
+#KODIPROP:inputstream.adaptive.license_key=https://vercel-php-clearkey-hex-base64-json.vercel.app/api/results.php?keyid=54606447858893d667ddca2f4059dd64&key=10dfcd5a8f6576ef927ba7fa78f67f35
+https://a201aivottlinear-a.akamaihd.net/OTTB/lhr-nitro/clients/dash/enc/ap0kfrjxki/out/v1/525db87abb1d4657a6329900717c5bf2/cenc.mpd
 
 
 
