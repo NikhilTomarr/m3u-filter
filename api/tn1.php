@@ -13,9 +13,8 @@ https://livetv-push.hotstar.com/dash/live/2002464/sshd1livetvwv/master.mpd?||coo
 
 #EXTINF:-1 group-title="IND vs SA" tvg-logo="g", TNT SPORTS 2
 #KODIPROP:inputstream.adaptive.license_type=clearkey
-#KODIPROP:inputstream.adaptive.license_key=https://vercel-php-clearkey-hex-base64-json.vercel.app/api/results.php?keyid=d0f2e5c39e70c18f29bf77768a1ad89a&key=d6853c51fcf37a18905f0609972395d7
-https://aba3uy3aaaaaaaamfjv2jyrjdxcj4.otte.live.cf.ww.aiv-cdn.net/sin-nitro/live/dash/enc/wf8usag51e/out/v1/bd3b0c314fff4bb1ab4693358f3cd2d3/cenc.mpd?
-
+#KODIPROP:inputstream.adaptive.license_key=https://vercel-php-clearkey-hex-base64-json.vercel.app/api/results.php?keyid=9f51f3dc6313ac8bc668e2d9d1c04dfa&key=74bc63e5a193454a91ca494975db33f9
+https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/dash/enc/f0qvkrra8j/out/v1/f8fa17f087564f51aa4d5c700be43ec4/cenc.mpd?
 #EXTINF:-1 group-title="IND vs SA" tvg-logo="g", FOX
 https://shotner.u0k.workers.dev/6B6DDmR.m3u8
 
