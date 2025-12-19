@@ -4,13 +4,12 @@ https://fansspot.fun/promo.mp4
 #EXTINF:-1 group-title="IND vs SA" tvg-logo="g", HINDI
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://vercel-php-clearkey-hex-base64-json.vercel.app/api/results.php?keyid=fe7718fbb3fb4ba78c07cc0f578744e6&key=624e24b1843b459fab0a949609416f0d
-https://live-en.aisports.cc/moviebox/device01/playlist.m3u8
-//https://livetv-push.hotstar.com/dash/live/2002466/sshindiwv/master.mpd??||cookie=hdntl=exp=1766035205~acl=*sshindi*~id=07cd83078fdf16170be18c871fe6c29a~data=hdntl~hmac=b8af3333af64b6f8871f383c4c8ded1784730ad36b08df39f3c5f4b8f35d49f0||http-user-agent=Hotstar;in.startv.hotstar/25.02.24.8.11169%20(Android/15)|||http-referer=https://www.hotstar.com/||||http-origin=https://www.hotstar.com 
+https://livetv-push.hotstar.com/dash/live/2002466/sshindiwv/master.mpd??||cookie=hdntl=exp=1766237995~acl=*sshindi*~id=a272c620b60b4d5379a1ec54e5cac97c~data=hdntl~hmac=64223c8bf63067364f35cad5a50c7b038f40bc4c9a97c8aa05a9c2cb99a575b9||http-user-agent=Hotstar;in.startv.hotstar/25.02.24.8.11169%20(Android/15)|||http-referer=https://www.hotstar.com/||||http-origin=https://www.hotstar.com 
 
 #EXTINF:-1 group-title="IND vs SA" tvg-logo="g", English
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://vercel-php-clearkey-hex-base64-json.vercel.app/api/results.php?keyid=fe7718fbb3fb4ba78c07cc0f578744e6&key=624e24b1843b459fab0a949609416f0d
-//https://livetv-push.hotstar.com/dash/live/2002464/sshd1livetvwv/master.mpd?||cookie=hdntl=exp=1766035205~acl=*sshd1livetv*~id=1a206a1cd0e5ae41f96f26701a9cfb9e~data=hdntl~hmac=b7e84b6addfc10a3aa868fd71d49e2c669fb54843851c58f2392313e6421fdad|||http-origin=https://www.hotstar.com|||http-referer=https://www.hotstar.com/||http-user-agent=Hotstar;in.startv.hotstar/25.02.24.8.11169%20(Android/15)
+https://livetv-push.hotstar.com/dash/live/2002464/sshd1livetvwv/master.mpd?||cookie=hdntl=exp=1766238033~acl=*sshd1livetv*~id=41107ce774edae87c8865a2bdeb434d3~data=hdntl~hmac=3e2995be8ea1adab93dea440aef792f55103edd26862c544c72b754f784926ff|||http-origin=https://www.hotstar.com|||http-referer=https://www.hotstar.com/||http-user-agent=Hotstar;in.startv.hotstar/25.02.24.8.11169%20(Android/15)
 
 #EXTINF:-1 group-title="IND vs SA" tvg-logo="g", TNT SPORTS 
 #KODIPROP:inputstream.adaptive.license_type=clearkey
@@ -25,8 +24,7 @@ https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/dash/enc/f0qvkrra8j/out/v1/f8
 
 #EXTINF:-1 group-title="IND vs SA" tvg-logo="g", WILLOW
 #KODIPROP:inputstream.adaptive.license_type=clearkey
-#KODIPROP:inputstream.adaptive.license_key=https://vercel-php-clearkey-hex-base64-json.vercel.app/api/results.php?keyid=e6e5c8033a76eaa14cf5f043c63684c6&key=45a1607cbb02e1a1f673bae2e607bbd4
-https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/clients/dash/enc/jmjjscadmf/out/v1/911c6ff00f1a45258e7944abf338702b/cenc.mpd
-
+#KODIPROP:inputstream.adaptive.license_key=https://vercel-php-clearkey-hex-base64-json.vercel.app/api/results.php?keyid=4e4205caffa2cdbed02a60025d6623b1&key=5f2a36613364cfc71589b73a2de718a1
+https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/clients/dash/enc/jybbiuq6el/out/v1/9a2d82dbd8b14499b6a94780f53f3fcb/cenc.mpd?
 
 
