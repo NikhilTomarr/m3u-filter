@@ -15,13 +15,11 @@ https://livetv-push.hotstar.com/dash/live/2002464/sshd1livetvwv/master.mpd?||coo
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://vercel-php-clearkey-hex-base64-json.vercel.app/api/results.php?keyid=9f51f3dc6313ac8bc668e2d9d1c04dfa&key=74bc63e5a193454a91ca494975db33f9
 https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/dash/enc/f0qvkrra8j/out/v1/f8fa17f087564f51aa4d5c700be43ec4/cenc.mpd?
-#EXTINF:-1 group-title="IND vs SA" tvg-logo="g", FOX
-https://shotner.u0k.workers.dev/6B6DDmR.m3u8
+
 
 #EXTINF:-1 group-title="IND vs SA" tvg-logo="g", WILLOW
 #KODIPROP:inputstream.adaptive.license_type=clearkey
-#KODIPROP:inputstream.adaptive.license_key=https://vercel-php-clearkey-hex-base64-json.vercel.app/api/results.php?keyid=199aa69bb1b424a9a14ff9ac5c169f50&key=5927bf3a1cca7d9f8f735560db28e2d0
-https://otte.live.cf.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/mwddjgrrzb/out/v1/8f33429098f74d9590bae036af2e6527/cenc.mpd
-
+#KODIPROP:inputstream.adaptive.license_key=https://vercel-php-clearkey-hex-base64-json.vercel.app/api/results.php?keyid=e6e5c8033a76eaa14cf5f043c63684c6&key=45a1607cbb02e1a1f673bae2e607bbd4
+https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/clients/dash/enc/jmjjscadmf/out/v1/911c6ff00f1a45258e7944abf338702b/cenc.mpd
 
 
