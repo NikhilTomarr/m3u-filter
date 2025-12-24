@@ -28,3 +28,8 @@ https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/dash/enc/f0qvkrra8j/out/v1/f8
 https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/clients/dash/enc/jybbiuq6el/out/v1/9a2d82dbd8b14499b6a94780f53f3fcb/cenc.mpd?
 
 
+#EXTINF:-1 tvg-id="144" group-title="Entertainment" tvg-logo="https://v3img.voot.com/resizeMedium,w_1090,h_613/v3Storage/assets/colors-hindi--16x9-1714557869344.jpg",Colors HD
+https://jcevents.hotstar.com/bpk-tv/JC_ColorsHD/JCHLS/JC_ColorsHD.m3u8||cookie=hdntl=exp=1766590208~acl=%2f*~id=e00c4061037b4ef03f466947edc3310a~data=hdntl~hmac=8ca1f50a291cc2fb1b92797e974de132c0d6d703aa76d358751d6e207cebe4f8||http-user-agent=Hotstar;in.startv.hotstar/25.01.27.5.3788 (Android/13)|||http-referrer=https://www.hotstar.com/||||http-origin=https://www.hotstar.com
+
+#EXTINF:-1 tvg-id="144" group-title="Entertainment" tvg-logo="https://v3img.voot.com/resizeMedium,w_1090,h_613/v3Storage/assets/colors-hindi--16x9-1714557869344.jpg",Colors HD
+https://jcevents.hotstar.com/bpk-tv/JC_ColorsHD/JCHLS/JC_ColorsHD.m3u8?||cookie=hdntl=exp=1766590208~acl=%2f*~id=e00c4061037b4ef03f466947edc3310a~data=hdntl~hmac=8ca1f50a291cc2fb1b92797e974de132c0d6d703aa76d358751d6e207cebe4f8||http-user-agent=Hotstar;in.startv.hotstar/25.01.27.5.3788 (Android/13)|||http-referrer=https://www.hotstar.com/||||http-origin=https://www.hotstar.com
