@@ -1,51 +1,113 @@
 <?php
-header('Content-Type: application/x-mpegurl');
-header('Content-Disposition: inline; filename="playlist.m3u8"');
+header('Content-Type: audio/x-mpegurl');
+header('Content-Disposition: attachment; filename="playlist.m3u"');
 
-// Fetch M3U data from GitHub
-$url = 'https://raw.githubusercontent.com/alex8875/m3u/refs/heads/main/jcinema.m3u';
-$data = file_get_contents($url);
+// M3U playlist URL
+$playlistUrl = 'https://raw.githubusercontent.com/alex8875/m3u/refs/heads/main/jcinema.m3u';
 
-if ($data === false) {
-    die("Error fetching data from URL");
+// Fetch the playlist content
+function fetchPlaylist($url) {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    $content = curl_exec($ch);
+    curl_close($ch);
+    return $content;
 }
 
-// Split data into lines
-$lines = explode("\n", $data);
-$output = [];
-$cookieValue = '';
-
-foreach ($lines as $line) {
-    $line = trim($line);
-
-    // Check if line contains EXTHTTP with cookie
-    if (strpos($line, '#EXTHTTP:') === 0) {
-        // Extract cookie value from JSON
-        $jsonStart = strpos($line, '{');
-        if ($jsonStart !== false) {
-            $jsonStr = substr($line, $jsonStart);
-            $jsonData = json_decode($jsonStr, true);
-
-            if (isset($jsonData['cookie'])) {
-                $cookieValue = $jsonData['cookie'];
+// Parse and convert M3U format
+function convertM3UFormat($content) {
+    $lines = explode("\n", $content);
+    $output = "#EXTM3U\n";
+    
+    $currentEntry = [];
+    $cookieValue = '';
+    
+    for ($i = 0; $i < count($lines); $i++) {
+        $line = trim($lines[$i]);
+        
+        // Skip empty lines
+        if (empty($line)) continue;
+        
+        // Handle #EXTM3U header
+        if (strpos($line, '#EXTM3U') === 0) {
+            continue;
+        }
+        
+        // Handle #EXTINF line
+        if (strpos($line, '#EXTINF:') === 0) {
+            $currentEntry['extinf'] = $line;
+        }
+        
+        // Handle #EXTVLCOPT lines
+        if (strpos($line, '#EXTVLCOPT:') === 0) {
+            // Change user-agent
+            if (strpos($line, 'http-user-agent') !== false) {
+                $currentEntry['user_agent'] = '#EXTVLCOPT:http-user-agent=Hotstar;in.startv.hotstar/25.01.27.5.3788 (Android/13)';
+            } elseif (strpos($line, 'http-origin') !== false) {
+                $currentEntry['origin'] = $line;
+            } elseif (strpos($line, 'http-referrer') !== false) {
+                $currentEntry['referrer'] = $line;
             }
         }
-        // Skip this line (don't add to output)
-        continue;
-    }
-
-    // Check if line is a stream URL (starts with http/https and not a comment)
-    if (preg_match('/^https?:\/\//', $line) && strpos($line, '#') !== 0) {
-        // If we have a cookie value, append it to the URL
-        if (!empty($cookieValue)) {
-            $line = $line . '||cookie=' . $cookieValue;
-            $cookieValue = ''; // Reset cookie for next entry
+        
+        // Handle #EXTHTTP cookie
+        if (strpos($line, '#EXTHTTP:') === 0) {
+            // Extract cookie value from JSON
+            preg_match('/"cookie":"([^"]+)"/', $line, $matches);
+            if (isset($matches[1])) {
+                $cookieValue = $matches[1];
+            }
+        }
+        
+        // Handle stream URL
+        if (strpos($line, 'http://') === 0 || strpos($line, 'https://') === 0) {
+            // Output the converted entry
+            if (!empty($currentEntry['extinf'])) {
+                $output .= $currentEntry['extinf'] . "\n";
+            }
+            if (!empty($currentEntry['user_agent'])) {
+                $output .= $currentEntry['user_agent'] . "\n";
+            }
+            if (!empty($currentEntry['origin'])) {
+                $output .= $currentEntry['origin'] . "\n";
+            }
+            if (!empty($currentEntry['referrer'])) {
+                $output .= $currentEntry['referrer'] . "\n";
+            }
+            
+            // Add URL with cookie appended
+            if (!empty($cookieValue)) {
+                $output .= $line . '||cookie=' . $cookieValue . "\n";
+            } else {
+                $output .= $line . "\n";
+            }
+            
+            // Reset for next entry
+            $currentEntry = [];
+            $cookieValue = '';
         }
     }
-
-    $output[] = $line;
+    
+    return $output;
 }
 
-// Output the modified M3U data
-echo implode("\n", $output);
+try {
+    // Fetch fresh playlist data
+    $playlistContent = fetchPlaylist($playlistUrl);
+    
+    if ($playlistContent === false || empty($playlistContent)) {
+        die("Error: Unable to fetch playlist from URL");
+    }
+    
+    // Convert and output the playlist
+    echo convertM3UFormat($playlistContent);
+    
+} catch (Exception $e) {
+    die("Error: " . $e->getMessage());
+}
 ?>
+    
