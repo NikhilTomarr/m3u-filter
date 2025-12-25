@@ -1,7 +1,7 @@
 <?php
 // Set headers for M3U playlist
 header('Content-Type: audio/x-mpegurl');
-header('Content-Disposition: inline; filename="jtvplus.m3u"');
+header('Content-Disposition: inline; filename="jpvali_playlist.m3u"');
 
 // M3U file URL
 $m3u_url = 'https://raw.githubusercontent.com/alex8875/m3u/refs/heads/main/jtv.m3u';
@@ -25,10 +25,7 @@ foreach ($lines as $line) {
         continue; // Skip this line (don't add to modified_lines)
     }
 
-    // Modify group-title from "Jiostar" to "Jiostar x Streamstar"
-    if (strpos($line, '#EXTINF:') === 0) {
-        $line = str_replace('group-title="Jiostar"', 'group-title="Jiostar x Streamstar"', $line);
-    }
+    
 
     // Modify license key format
     if (strpos($line, '#KODIPROP:inputstream.adaptive.license_key=') === 0) {
