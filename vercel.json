@@ -7,6 +7,7 @@
     { "src": "/api/jc.php", "dest": "/api/jc.php" },
     { "src": "/api/jp.php", "dest": "/api/jp.php" },
     { "src": "/api/js.php", "dest": "/api/js.php" },
-    { "src": "/api/ln3.php", "dest": "/api/ln3.php" }
+    { "src": "/api/ln3.php", "dest": "/api/ln3.php" },
+    { "src": "/api/fl.php", "dest": "/api/fl.php" }
   ]
 }
