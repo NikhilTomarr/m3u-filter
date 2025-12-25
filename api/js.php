@@ -1,7 +1,7 @@
 <?php
 // Set headers for M3U playlist
 header('Content-Type: audio/x-mpegurl');
-header('Content-Disposition: inline; filename="modified_playlist.m3u"');
+header('Content-Disposition: inline; filename="jstarvali_playlist.m3u"');
 
 // M3U file URL
 $m3u_url = 'https://raw.githubusercontent.com/alex8875/m3u/refs/heads/main/jstar.m3u';
