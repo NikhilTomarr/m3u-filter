@@ -4,7 +4,7 @@ header('Content-Type: audio/x-mpegurl');
 header('Content-Disposition: inline; filename="jpvali_playlist.m3u"');
 
 // M3U file URL
-$m3u_url = 'https://raw.githubusercontent.com/Sufiyan123yivh/Testing/refs/heads/main/jtv.m3u';
+$m3u_url = 'https://raw.githubusercontent.com/alex8875/m3u/refs/heads/main/jtv.m3u';
 
 // Fetch the M3U content
 $content = @file_get_contents($m3u_url);
@@ -40,10 +40,10 @@ foreach ($lines as $line) {
 
     // Modify URL: Add ||cookie= after index.mpd? AND remove &xxx=... part
     if (strpos($line, 'https://jiotvpllive.cdn.jio.com') === 0 && 
-        strpos($line, 'index.mpd') !== false) {
+        strpos($line, 'index.mpd?') !== false) {
 
         // Replace index.mpd? with index.mpd?||cookie=
-        $line = str_replace('index.mpd', 'index.mpd||cookie=', $line);
+        $line = str_replace('index.mpd?', 'index.mpd?||cookie=', $line);
 
         // Remove &xxx=%7Ccookie=... and everything after it
         if (strpos($line, '&xxx=') !== false) {
