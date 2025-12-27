@@ -40,10 +40,10 @@ foreach ($lines as $line) {
 
     // Modify URL: Add ||cookie= after index.mpd? AND remove &xxx=... part
     if (strpos($line, 'https://jiotvpllive.cdn.jio.com') === 0 && 
-        strpos($line, 'index.mpd?') !== false) {
+        strpos($line, 'index.mpd') !== false) {
 
         // Replace index.mpd? with index.mpd?||cookie=
-        $line = str_replace('index.mpd?', 'index.mpd?||cookie=', $line);
+        $line = str_replace('index.mpd', 'index.mpd||cookie=', $line);
 
         // Remove &xxx=%7Ccookie=... and everything after it
         if (strpos($line, '&xxx=') !== false) {
