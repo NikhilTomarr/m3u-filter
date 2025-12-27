@@ -4,7 +4,7 @@ header('Content-Type: audio/x-mpegurl');
 header('Content-Disposition: inline; filename="playlist.m3u"');
 
 // Fetch JSON data from URL
-$jsonUrl = "https://ziotv.pfy.workers.dev";
+$jsonUrl = "https://ztv.pfy.workers.dev";
 $jsonData = file_get_contents($jsonUrl);
 
 // Check if data was fetched successfully
