@@ -1,9 +1,9 @@
 <?php
 header('Content-Type: audio/x-mpegurl');
-header('Content-Disposition: attachment; filename="jcvali_playlist.m3u"');
+header('Content-Disposition: attachment; filename="str_playlist.m3u"');
 
 // M3U playlist URL
-$playlistUrl = 'https://livetv-cb7.pages.dev/jcinema.m3u';
+$playlistUrl = 'https://livetv-cb7.pages.dev/star.m3u';
 
 // Fetch the playlist content
 function fetchPlaylist($url) {
