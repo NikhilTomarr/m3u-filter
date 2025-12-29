@@ -20,6 +20,42 @@ function fetchExternalM3U($url) {
     return $data !== false ? $data : '';
 }
 
+// Function to filter out specific group-title entries
+function filterM3UByGroup($m3uContent, $excludeGroup) {
+    $lines = explode("\n", $m3uContent);
+    $filtered = [];
+    $skipNext = false;
+    
+    foreach ($lines as $index => $line) {
+        $line = trim($line);
+        
+        // Check if this is an EXTINF line with the group to exclude
+        if (strpos($line, '#EXTINF') === 0 || strpos($line, '#KODIPROP') === 0) {
+            if (strpos($line, '#EXTINF') === 0 && 
+                preg_match('/group-title=["\']?' . preg_quote($excludeGroup, '/') . '["\']?/i', $line)) {
+                $skipNext = true;
+                continue; // Skip this EXTINF line
+            }
+            
+            if (!$skipNext) {
+                $filtered[] = $line;
+            }
+        } elseif (!empty($line) && strpos($line, '#') !== 0) {
+            // This is a URL line
+            if (!$skipNext) {
+                $filtered[] = $line;
+            }
+            $skipNext = false; // Reset flag after URL
+        } else {
+            // Other lines (headers, comments, etc.)
+            if (!$skipNext) {
+                $filtered[] = $line;
+            }
+        }
+    }
+    
+    return implode("\n", $filtered);
+}
 
 $liveEvents = [
     [
@@ -31,7 +67,7 @@ $liveEvents = [
         'props' => []
     ],
     [
-        'title' => 'HINDI',
+        'title' => 'Live1',
         'group' => 'IND vs SA',
         'logo' => 'g',
         'url' => 'https://livetv-push.hotstar.com/dash/live/2002466/sshindiwv/master.mpd??||cookie=hdntl=exp=1766237995~acl=*sshindi*~id=a272c620b60b4d5379a1ec54e5cac97c~data=hdntl~hmac=64223c8bf63067364f35cad5a50c7b038f40bc4c9a97c8aa05a9c2cb99a575b9||http-user-agent=Hotstar;in.startv.hotstar/25.02.24.8.11169%20(Android/15)|||http-referer=https://www.hotstar.com/||||http-origin=https://www.hotstar.com',
@@ -41,7 +77,7 @@ $liveEvents = [
         ]
     ],
     [
-        'title' => 'English',
+        'title' => 'Live2',
         'group' => 'IND vs SA',
         'logo' => 'g',
         'url' => 'https://livetv-push.hotstar.com/dash/live/2002464/sshd1livetvwv/master.mpd?||cookie=hdntl=exp=1766238033~acl=*sshd1livetv*~id=41107ce774edae87c8865a2bdeb434d3~data=hdntl~hmac=3e2995be8ea1adab93dea440aef792f55103edd26862c544c72b754f784926ff|||http-origin=https://www.hotstar.com|||http-referer=https://www.hotstar.com/||http-user-agent=Hotstar;in.startv.hotstar/25.02.24.8.11169%20(Android/15)',
@@ -52,19 +88,19 @@ $liveEvents = [
     ]
 ];
 
-// Start output
+
 echo "#EXTM3U\n\n";
 
-// Output live events first
+
 foreach ($liveEvents as $event) {
-    // Output KODIPROP lines if present
+    
     if (!empty($event['props'])) {
         foreach ($event['props'] as $prop) {
             echo $prop . "\n";
         }
     }
     
-    // Build EXTINF line
+    
     $extinf = "#EXTINF:-1";
     if (!empty($event['tvg_id'])) $extinf .= ' tvg-id="' . $event['tvg_id'] . '"';
     if (!empty($event['logo'])) $extinf .= ' tvg-logo="' . $event['logo'] . '"';
@@ -75,13 +111,17 @@ foreach ($liveEvents as $event) {
     echo $event['url'] . "\n\n";
 }
 
-// Fetch and append external data
+
 $externalData = fetchExternalM3U('https://modsdone.com/Billatv/Crichd.php');
 
 if (!empty($externalData)) {
-    // Remove duplicate #EXTM3U header from external data
+    
     $externalData = preg_replace('/^#EXTM3U\s*/i', '', trim($externalData));
+    
+    
+    $externalData = filterM3UByGroup($externalData, 'Sports Channels');
+    
     echo $externalData;
 }
 ?>
-
+    
