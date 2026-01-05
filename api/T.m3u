@@ -6,3 +6,11 @@
 #EXTVLCOPT:http-origin=https://www.hotstar.com/
 #EXTHTTP:{"cookie":"hdntl=exp=1767692342~acl=%2f*~id=293cb60f82da31d8dfff66d37a3228b5~data=hdntl~hmac=6922043fd2a9a3deb0a7cd340a5e96f042ae83abfef56237c262cbc1e81d9b1c"}
 https://livetv.hotstar.com/mp1/gec-india-1540057036/9b002b1b2a3748b7a80a8512aef0bb8d/index.mpd||cookie=hdntl=exp=1767692342~acl=%2f*~id=293cb60f82da31d8dfff66d37a3228b5~data=hdntl~hmac=6922043fd2a9a3deb0a7cd340a5e96f042ae83abfef56237c262cbc1e81d9b1c
+
+
+#EXTINF:-1 group-title="Others" tvg-logo="https://img10.hotstar.com/image/upload/f_auto,q_90,w_1920/sources/r1/cms/prod/7429/567429-h",Star Suvarna
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#EXTVLCOPT:http-user-agent=Hotstar;in.startv.hotstar/25.01.27.5.3788 (Android/13)
+#EXTVLCOPT:http-referer=https://www.hotstar.com/
+#EXTVLCOPT:http-origin=https://www.hotstar.com/
+https://livetv.hotstar.com/mp1/gec-india-1540057075/57ae0b6fa2b64281984574d406f9a696/index.mpd?|LicenseURL=https://vercel-php-clearkey-hex-base64-json.vercel.app/api/results.php?keyid=786fe347f558460398b9e42e1db50000&key=d630fb6469c3457e9d7c4bb863e1fef1||cookie=hdntl=exp=1767692342~acl=%2f*~id=293cb60f82da31d8dfff66d37a3228b5~data=hdntl~hmac=6922043fd2a9a3deb0a7cd340a5e96f042ae83abfef56237c262cbc1e81d9b1c||http-user-agent=Hotstar;in.startv.hotstar/25.01.27.5.3788 (Android/13)
