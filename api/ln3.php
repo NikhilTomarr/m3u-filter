@@ -32,7 +32,7 @@ $liveEvents = [
     [
         'title' => 'HINDI',
         'logo' => 'g',
-        'url' => 'https://livetv-push.hotstar.com/dash/live/2002466/sshindiwv/master.mpd??||cookie=hdntl=exp=1766237995~acl=*sshindi*~id=a272c620b60b4d5379a1ec54e5cac97c~data=hdntl~hmac=64223c8bf63067364f35cad5a50c7b038f40bc4c9a97c8aa05a9c2cb99a575b9||http-user-agent=Hotstar;in.startv.hotstar/25.02.24.8.11169%20(Android/15)|||http-referer=https://www.hotstar.com/||||http-origin=https://www.hotstar.com',
+        'url' => 'https://jcevents.hotstar.com/bpk-tv/f0e3e64ae415771d8e460317ce97aa5e/Fallback/index2.m3u8||cookie=hdntl=exp=1768201558~acl=/*~id=190ac98179344a21461fd22ea60e6d5e~data=hdntl~hmac=2c6d75d058b3f4e6ffcb946a80fac03d593aad710f0439c33c5038b9eaa1294f|||http-origin=https://www.hotstar.com|||http-referer=https://www.hotstar.com/||http-user-agent=Hotstar;in.startv.hotstar/25.02.24.8.11169%20(Android/15)',
         'props' => [
             '#KODIPROP:inputstream.adaptive.license_type=clearkey',
             '#KODIPROP:inputstream.adaptive.license_key=https://vercel-php-clearkey-hex-base64-json.vercel.app/api/results.php?keyid=fe7718fbb3fb4ba78c07cc0f578744e6&key=624e24b1843b459fab0a949609416f0d'
@@ -41,13 +41,14 @@ $liveEvents = [
     [
         'title' => 'English',
         'logo' => 'g',
-        'url' => 'https://livetv-push.hotstar.com/dash/live/2002464/sshd1livetvwv/master.mpd?||cookie=hdntl=exp=1766238033~acl=*sshd1livetv*~id=41107ce774edae87c8865a2bdeb434d3~data=hdntl~hmac=3e2995be8ea1adab93dea440aef792f55103edd26862c544c72b754f784926ff|||http-origin=https://www.hotstar.com|||http-referer=https://www.hotstar.com/||http-user-agent=Hotstar;in.startv.hotstar/25.02.24.8.11169%20(Android/15)',
+        'url' => 'https://livetv-push.hotstar.com/dash/live/2002464/sshd1livetvwv/master.mpd?||cookie=hdntl=exp=1768200358~acl=*sshd2livetv*~id=62e0ace2c24927037bb2ff08f26644a0~data=hdntl~hmac=6a0ba1905630f9d104afb588124d1b6b99318723bbca9198d0ec58d0191cdfc2|||http-origin=https://www.hotstar.com|||http-referer=https://www.hotstar.com/||http-user-agent=Hotstar;in.startv.hotstar/25.02.24.8.11169%20(Android/15)',
         'props' => [
             '#KODIPROP:inputstream.adaptive.license_type=clearkey',
             '#KODIPROP:inputstream.adaptive.license_key=https://vercel-php-clearkey-hex-base64-json.vercel.app/api/results.php?keyid=fe7718fbb3fb4ba78c07cc0f578744e6&key=624e24b1843b459fab0a949609416f0d'
         ]
     ]
 ];
+
 
 
 echo "#EXTM3U\n\n";
