@@ -32,22 +32,31 @@ $liveEvents = [
     [
         'title' => 'HINDI',
         'logo' => 'g',
-        'url' => 'https://jcevents.hotstar.com/bpk-tv/f0e3e64ae415771d8e460317ce97aa5e/Fallback/index2.m3u8||cookie=hdntl=exp=1768201558~acl=/*~id=190ac98179344a21461fd22ea60e6d5e~data=hdntl~hmac=2c6d75d058b3f4e6ffcb946a80fac03d593aad710f0439c33c5038b9eaa1294f|||http-origin=https://www.hotstar.com|||http-referer=https://www.hotstar.com/||http-user-agent=Hotstar;in.startv.hotstar/25.02.24.8.11169%20(Android/15)',
+        'url' => 'https://jcevents.hotstar.com/bpk-tv/f0e3e64ae415771d8e460317ce97aa5e/Fallback/index2.m3u8||cookie=hdntl=exp=1768201558~acl=/*~id=190ac98179344a21461fd22ea60e6d5e~data=hdntl~hmac=2c6d75d058b3f4e6ffcb946a80fac03d593aad710f0439c33c5038b9eaa1294f|||http-origin=https://www.hotstar.com|||http-referer=https://www.hotstar.com/||http-user-agent=Hotstar;in.startv.hotstar/SportsLover(Android/15)',
         'props' => [
-            '#KODIPROP:inputstream.adaptive.license_type=clearkey',
-            '#KODIPROP:inputstream.adaptive.license_key=https://vercel-php-clearkey-hex-base64-json.vercel.app/api/results.php?keyid=fe7718fbb3fb4ba78c07cc0f578744e6&key=624e24b1843b459fab0a949609416f0d'
+            '#KODIPROP:inputstream.adaptive.license_type=clearkey'
         ]
     ],
     [
         'title' => 'English',
         'logo' => 'g',
-        'url' => 'https://livetv-push.hotstar.com/dash/live/2002464/sshd1livetvwv/master.mpd?||cookie=hdntl=exp=1768200358~acl=*sshd2livetv*~id=62e0ace2c24927037bb2ff08f26644a0~data=hdntl~hmac=6a0ba1905630f9d104afb588124d1b6b99318723bbca9198d0ec58d0191cdfc2|||http-origin=https://www.hotstar.com|||http-referer=https://www.hotstar.com/||http-user-agent=Hotstar;in.startv.hotstar/25.02.24.8.11169%20(Android/15)',
+        'url' => 'https://otte.live.cf.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/njsiktakqy/out/v1/b25ec77dd6d547d68df6d07f165896ff/cenc.mpd',
+        'props' => [
+            '#KODIPROP:inputstream.adaptive.license_type=clearkey',
+            '#KODIPROP:inputstream.adaptive.license_key=https://vercel-php-clearkey-hex-base64-json.vercel.app/api/results.php?keyid=dd94299841023377b7302276118a971b&key=b0e803fe7d4c136d0ba8eac091a032b7'
+        ]
+    ],
+    [
+        'title' => 'English',
+        'logo' => 'g',
+        'url' => 'https://livetv-push.hotstar.com/dash/live/2002465/sshd2livetvwv/master.mpd?||cookie=hdntl=exp=1768200358~acl=*sshd2livetv*~id=62e0ace2c24927037bb2ff08f26644a0~data=hdntl~hmac=6a0ba1905630f9d104afb588124d1b6b99318723bbca9198d0ec58d0191cdfc2|||http-origin=https://www.hotstar.com|||http-referer=https://www.hotstar.com/||http-user-agent=Hotstar;in.startv.hotstar/SportsLover(Android/15)',
         'props' => [
             '#KODIPROP:inputstream.adaptive.license_type=clearkey',
             '#KODIPROP:inputstream.adaptive.license_key=https://vercel-php-clearkey-hex-base64-json.vercel.app/api/results.php?keyid=fe7718fbb3fb4ba78c07cc0f578744e6&key=624e24b1843b459fab0a949609416f0d'
         ]
     ]
 ];
+
 
 
 
