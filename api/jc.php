@@ -3,7 +3,7 @@ header('Content-Type: audio/x-mpegurl');
 header('Content-Disposition: attachment; filename="jcvali_playlist.m3u"');
 
 // M3U playlist URL
-$playlistUrl = 'https://raw.githubusercontent.com/alex8875/m3u/refs/heads/main/jcinema.m3u';
+$playlistUrl = 'https://cloudplay-app.cloudplay-help.workers.dev/hotstar?password=all';
 //
 // Fetch the playlist content
 function fetchPlaylist($url) {
