@@ -53,9 +53,15 @@ foreach ($channels as $channel) {
     // 4. Referrer header
     echo "#EXTVLCOPT:http-referrer=" . $referer . "\n";
     
-    // 5. Final stream URL with cookie
+    // 5. Final stream URL - **NEW QUERY FORMAT**
     if ($cookie) {
-        echo "$m3u8Url||cookie=$cookie\n\n";
+        // Extract hdntl value from cookie (hdntl=... tak)
+        if (preg_match('/hdntl=(.*)/', $cookie, $matches)) {
+            $hdntl = $matches[1];
+            echo "$m3u8Url?hdntl=$hdntl\n\n";
+        } else {
+            echo "$m3u8Url\n\n";
+        }
     } else {
         echo "$m3u8Url\n\n";
     }
