@@ -1,14 +1,10 @@
 <?php
-// Debug mode ON - sab kuch dikhega
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+header('Content-Type: text/plain; charset=utf-8');
 
-echo "1. Script start...\n";
-
-// Direct API test
+// API URL
 $apiUrl = 'https://cloudplay-app.cloudplay-help.workers.dev/hotstar?password=all';
-echo "2. API URL: $apiUrl\n";
 
+// Data fetch karo
 $context = stream_context_create([
     'http' => [
         'method' => 'GET',
@@ -18,49 +14,50 @@ $context = stream_context_create([
 ]);
 
 $jsonData = @file_get_contents($apiUrl, false, $context);
-echo "3. Data length: " . (strlen($jsonData ?? '') ?: '0') . "\n";
-
-if (!$jsonData) {
-    echo "#EXTM3U\n#ERROR: API se data nahi mila\n";
-    exit;
-}
-
-echo "4. Raw data preview: " . substr($jsonData, 0, 200) . "\n";
-
 $channels = json_decode($jsonData, true);
-echo "5. Channels count: " . (is_array($channels) ? count($channels) : '0') . "\n";
 
-if (!is_array($channels) || empty($channels)) {
-    echo "#ERROR: Invalid JSON\n";
-    exit;
-}
+// Clean M3U start
+echo "#EXTM3U\n\n";
 
-echo "#EXTM3U\n";
-echo "#PLAYLIST READY - " . count($channels) . " channels\n\n";
-
+// Har channel process karo
 foreach ($channels as $channel) {
-    $name = $channel['name'] ?? 'Unknown';
     $id = $channel['id'] ?? '';
-    $group = $channel['group'] ?? '';
+    $name = $channel['name'] ?? 'Unknown';
+    $group = $channel['group'] ?? 'General';
     $logo = $channel['logo'] ?? '';
-    $url = $channel['m3u8_url'] ?? '';
+    $userAgent = $channel['user_agent'] ?? '';
+    $m3u8Url = $channel['m3u8_url'] ?? '';
     
-    if (!$url) continue;
+    if (empty($m3u8Url)) continue;
     
+    // Headers extract karo
     $cookie = $channel['headers']['Cookie'] ?? '';
+    $origin = $channel['headers']['Origin'] ?? 'https://www.hotstar.com';
+    $referer = $channel['headers']['Referer'] ?? 'https://www.hotstar.com';
     
+    // 1. EXTINF line
     echo "#EXTINF:-1";
     if ($id) echo " tvg-id=\"$id\"";
     if ($group) echo " group-title=\"$group\"";
     if ($logo) echo " tvg-logo=\"$logo\"";
     echo ",$name\n";
     
+    // 2. User Agent (EXTVLCOPT)
+    if ($userAgent) {
+        echo "#EXTVLCOPT:http-user-agent=" . $userAgent . "\n";
+    }
+    
+    // 3. Origin header
+    echo "#EXTVLCOPT:http-origin=" . $origin . "\n";
+    
+    // 4. Referrer header
+    echo "#EXTVLCOPT:http-referrer=" . $referer . "\n";
+    
+    // 5. Final stream URL with cookie
     if ($cookie) {
-        echo "$url||cookie=$cookie\n\n";
+        echo "$m3u8Url||cookie=$cookie\n\n";
     } else {
-        echo "$url\n\n";
+        echo "$m3u8Url\n\n";
     }
 }
-
-echo "// END OF PLAYLIST\n";
 ?>
