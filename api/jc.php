@@ -1,113 +1,67 @@
 <?php
-header('Content-Type: audio/x-mpegurl');
-header('Content-Disposition: attachment; filename="jcvali_playlist.m3u"');
+header('Content-Type: text/plain; charset=utf-8');
 
-// M3U playlist URL
-$playlistUrl = 'https://cloudplay-app.cloudplay-help.workers.dev/hotstar?password=all';
-//
-// Fetch the playlist content
-function fetchPlaylist($url) {
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-    $content = curl_exec($ch);
-    curl_close($ch);
-    return $content;
+// API URL with password
+$apiUrl = 'https://cloudplay-app.cloudplay-help.workers.dev/hotstar?password=all';
+
+// Fetch JSON data from the API
+$jsonData = file_get_contents($apiUrl);
+
+if ($jsonData === false) {
+    die("Error: Unable to fetch data from API");
 }
 
-// Parse and convert M3U format
-function convertM3UFormat($content) {
-    $lines = explode("\n", $content);
-    $output = "#EXTM3U\n";
-    
-    $currentEntry = [];
-    $cookieValue = '';
-    
-    for ($i = 0; $i < count($lines); $i++) {
-        $line = trim($lines[$i]);
-        
-        // Skip empty lines
-        if (empty($line)) continue;
-        
-        // Handle #EXTM3U header
-        if (strpos($line, '#EXTM3U') === 0) {
-            continue;
-        }
-        
-        // Handle #EXTINF line
-        if (strpos($line, '#EXTINF:') === 0) {
-            $currentEntry['extinf'] = $line;
-        }
-        
-        // Handle #EXTVLCOPT lines
-        if (strpos($line, '#EXTVLCOPT:') === 0) {
-            // Change user-agent
-            if (strpos($line, 'http-user-agent') !== false) {
-                $currentEntry['user_agent'] = '#EXTVLCOPT:http-user-agent=Hotstar;in.startv.hotstar/25.01.27.5.3788 (Android/13)';
-            } elseif (strpos($line, 'http-origin') !== false) {
-                $currentEntry['origin'] = $line;
-            } elseif (strpos($line, 'http-referrer') !== false) {
-                $currentEntry['referrer'] = $line;
-            }
-        }
-        
-        // Handle #EXTHTTP cookie
-        if (strpos($line, '#EXTHTTP:') === 0) {
-            // Extract cookie value from JSON
-            preg_match('/"cookie":"([^"]+)"/', $line, $matches);
-            if (isset($matches[1])) {
-                $cookieValue = $matches[1];
-            }
-        }
-        
-        // Handle stream URL
-        if (strpos($line, 'http://') === 0 || strpos($line, 'https://') === 0) {
-            // Output the converted entry
-            if (!empty($currentEntry['extinf'])) {
-                $output .= $currentEntry['extinf'] . "\n";
-            }
-            if (!empty($currentEntry['user_agent'])) {
-                $output .= $currentEntry['user_agent'] . "\n";
-            }
-            if (!empty($currentEntry['origin'])) {
-                $output .= $currentEntry['origin'] . "\n";
-            }
-            if (!empty($currentEntry['referrer'])) {
-                $output .= $currentEntry['referrer'] . "\n";
-            }
-            
-            // Add URL with cookie appended
-            if (!empty($cookieValue)) {
-                $output .= $line . '||cookie=' . $cookieValue . "\n";
-            } else {
-                $output .= $line . "\n";
-            }
-            
-            // Reset for next entry
-            $currentEntry = [];
-            $cookieValue = '';
-        }
-    }
-    
-    return $output;
+// Decode JSON to PHP array
+$channels = json_decode($jsonData, true);
+
+if ($channels === null) {
+    die("Error: Invalid JSON data");
 }
 
-try {
-    // Fetch fresh playlist data
-    $playlistContent = fetchPlaylist($playlistUrl);
-    
-    if ($playlistContent === false || empty($playlistContent)) {
-        die("Error: Unable to fetch playlist from URL");
+// Start M3U playlist
+echo "#EXTM3U\n";
+
+// Loop through each channel
+foreach ($channels as $channel) {
+    // Extract data
+    $id = $channel['id'] ?? '';
+    $name = $channel['name'] ?? '';
+    $group = $channel['group'] ?? '';
+    $logo = $channel['logo'] ?? '';
+    $userAgent = $channel['user_agent'] ?? '';
+    $m3u8Url = $channel['m3u8_url'] ?? '';
+
+    // Extract headers
+    $cookie = $channel['headers']['Cookie'] ?? '';
+    $origin = $channel['headers']['Origin'] ?? '';
+    $referer = $channel['headers']['Referer'] ?? '';
+
+    // Build EXTINF line
+    echo "#EXTINF:-1 tvg-id="$id" group-title="$group" tvg-logo="$logo",$name\n";
+
+    // Add user-agent if present
+    if (!empty($userAgent)) {
+        echo "#EXTVLCOPT:http-user-agent=$userAgent\n";
     }
-    
-    // Convert and output the playlist
-    echo convertM3UFormat($playlistContent);
-    
-} catch (Exception $e) {
-    die("Error: " . $e->getMessage());
+
+    // Add origin if present
+    if (!empty($origin)) {
+        echo "#EXTVLCOPT:http-origin=$origin\n";
+    }
+
+    // Add referrer if present
+    if (!empty($referer)) {
+        echo "#EXTVLCOPT:http-referrer=$referer\n";
+    }
+
+    // Build URL with cookie
+    if (!empty($cookie)) {
+        echo "$m3u8Url||cookie=$cookie\n";
+    } else {
+        echo "$m3u8Url\n";
+    }
+
+    // Add blank line between channels for readability
+    echo "\n";
 }
 ?>
-    
