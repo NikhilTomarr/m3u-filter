@@ -22,10 +22,8 @@ foreach ($lines as $line) {
 
     // REMOVE: #EXTHTTP lines completely
     if (strpos($line, '#EXTHTTP:') === 0) {
-        continue; // Skip this line (don't add to modified_lines)
+        continue; // Skip this line
     }
-
-    
 
     // Modify license key format
     if (strpos($line, '#KODIPROP:inputstream.adaptive.license_key=') === 0) {
@@ -38,16 +36,21 @@ foreach ($lines as $line) {
         }
     }
 
-    // Modify URL: Add ||cookie= after index.mpd? AND remove &xxx=... part
-    if (strpos($line, 'https://jiotvpllive.cdn.jio.com') === 0 && 
+    // Modify URL: Extract cookie and rebuild URL
+    if ((strpos($line, 'https://jiotvmblive.cdn.jio.com') === 0 || 
+         strpos($line, 'https://jiotvpllive.cdn.jio.com') === 0) && 
         strpos($line, 'index.mpd?') !== false) {
 
-        // Replace index.mpd? with index.mpd?||cookie=
-        $line = str_replace('index.mpd?', 'index.mpd?||cookie=', $line);
-
-        // Remove &xxx=%7Ccookie=... and everything after it
-        if (strpos($line, '&xxx=') !== false) {
-            $line = preg_replace('/&xxx=.*$/', '', $line);
+        // Extract the cookie value from __hdnea__ parameter
+        if (preg_match('/__hdnea__=([^&]+)/', $line, $matches)) {
+            $cookie_value = $matches[1];
+            
+            // Get base URL (everything before the ?)
+            $url_parts = explode('?', $line);
+            $base_url = $url_parts[0];
+            
+            // Rebuild URL with ||cookie= format
+            $line = $base_url . '?||cookie=__hdnea__=' . $cookie_value;
         }
     }
 
