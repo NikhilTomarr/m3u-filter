@@ -5,7 +5,7 @@ header('Content-Disposition: inline; filename="jstarvali_playlist.m3u"');
 
 // M3U file URL
 $m3u_url = 'https://raw.githubusercontent.com/alex8875/m3u/refs/heads/main/jstar.m3u';
-
+//
 // Fetch the M3U content
 $content = @file_get_contents($m3u_url);
 
@@ -22,12 +22,7 @@ foreach ($lines as $line) {
 
     // REMOVE: #EXTHTTP lines completely
     if (strpos($line, '#EXTHTTP:') === 0) {
-        continue; // Skip this line (don't add to modified_lines)
-    }
-
-    // Modify group-title from "Jiostar" to "Jiostar x Streamstar"
-    if (strpos($line, '#EXTINF:') === 0) {
-        $line = str_replace('group-title="Jiostar"', 'group-title="Jiostar x Streamstar"', $line);
+        continue; // Skip this line
     }
 
     // Modify license key format
@@ -41,16 +36,21 @@ foreach ($lines as $line) {
         }
     }
 
-    // Modify URL: Add ||cookie= after index.mpd? AND remove &xxx=... part
-    if (strpos($line, 'https://jiotvpllive.cdn.jio.com') === 0 && 
+    // Modify URL: Extract cookie and rebuild URL
+    if ((strpos($line, 'https://jiotvmblive.cdn.jio.com') === 0 || 
+         strpos($line, 'https://jiotvpllive.cdn.jio.com') === 0) && 
         strpos($line, 'index.mpd?') !== false) {
 
-        // Replace index.mpd? with index.mpd?||cookie=
-        $line = str_replace('index.mpd?', 'index.mpd?||cookie=', $line);
-
-        // Remove &xxx=%7Ccookie=... and everything after it
-        if (strpos($line, '&xxx=') !== false) {
-            $line = preg_replace('/&xxx=.*$/', '', $line);
+        // Extract the cookie value from __hdnea__ parameter
+        if (preg_match('/__hdnea__=([^&]+)/', $line, $matches)) {
+            $cookie_value = $matches[1];
+            
+            // Get base URL (everything before the ?)
+            $url_parts = explode('?', $line);
+            $base_url = $url_parts[0];
+            
+            // Rebuild URL with ||cookie= format
+            $line = $base_url . '?||cookie=__hdnea__=' . $cookie_value;
         }
     }
 
