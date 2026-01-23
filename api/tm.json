@@ -11,10 +11,17 @@
     "origin": "",
     "cookie": ""
   },
+  
   {
     "tmdb_id": 872585,
     "title": "Oppenheimer",
-    "stream_url": "https://istreamcdn.com/mcdn/MBlock.php?id=9970788797121",
+    "stream_url": "https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8",
+    "media_type": "tv"
+  },
+  {
+    "tmdb_id": 872584,
+    "title": "Oppenheimer",
+    "stream_url": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8",
     "media_type": "tv"
   }
 ]
