@@ -7,12 +7,14 @@
     "drm_scheme": "",
     "user_agent": "",
     "referer": "",
+    "media_type": "movie",
     "origin": "",
     "cookie": ""
   },
   {
     "tmdb_id": 872585,
     "title": "Oppenheimer",
-    "stream_url": "https://istreamcdn.com/mcdn/MBlock.php?id=9970788797121"
+    "stream_url": "https://istreamcdn.com/mcdn/MBlock.php?id=9970788797121",
+    "media_type": "tv"
   }
 ]
