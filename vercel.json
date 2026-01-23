@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/*.php": { "runtime": "vercel-php@0.6.2" }
+    "api/*.php": { "runtime": "docker" }
   },
   "routes": [
     { "src": "/api/index.php", "dest": "/api/index.php" },
